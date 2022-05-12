@@ -35,8 +35,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     String msg = "";
     String tmp_msg = "";
-    int forward = 0, backward = 0, acceleration = 1024, smjer1 = 0, smjer2 = 0;
-    float smjer = 0, smjerD = 0;
+    int forward = 0, backward = 0, acceleration = 1024, left = 0, right = 0;
+    float accelerometer = 0, accelerometer_temp = 0;
 
     MessageSender messageSender;
 
@@ -60,14 +60,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 forward = backward = 0;
             }
 
-            if (smjer > 0) {
-                smjer2 = 0;
-                smjer1 = Integer.valueOf((int) (smjer * 110));
-            } else if (smjer < 0) {
-                smjer1 = 0;
-                smjer2 = Integer.valueOf((int) (-smjer * 110));
-            } else if (smjer == 0) {
-                smjer1 = smjer2 = 0;
+            if (accelerometer > 0) {
+                right = 0;
+                left = Integer.valueOf((int) (accelerometer * 110));
+            } else if (accelerometer < 0) {
+                left = 0;
+                right = Integer.valueOf((int) (-accelerometer * 110));
+            } else if (accelerometer == 0) {
+                left = right = 0;
             }
 
             sendMsg();
@@ -161,10 +161,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         accelerateS.refreshDrawableState();
         forward = 0;
         backward = 0;
-        smjer1 = 0;
-        smjer2 = 0;
-        smjer = 0;
-        smjerD = 0;
+        left = 0;
+        right = 0;
+        accelerometer = 0;
+        accelerometer_temp = 0;
         acceleration = 1024;
         sendMsg();
     }
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void sendMsg() {
 
         // building message from parameters
-        msg = (String.valueOf(forward) + "&" + String.valueOf(backward) + ":" + String.valueOf(smjer1) + "&" + String.valueOf(smjer2) + "e");
+        msg = (String.valueOf(forward) + "&" + String.valueOf(backward) + ":" + String.valueOf(left) + "&" + String.valueOf(right) + "e");
 
         // checking if any new messages and sending if any
         if (!tmp_msg.equals(msg)) {
@@ -264,10 +264,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 
-            smjerD = event.values[1];
+            accelerometer_temp = event.values[1];
 
-            if ((smjerD - smjer) > 0.5 || (smjerD - smjer) < (-0.5))
-                smjer = smjerD;
+            if ((accelerometer_temp - accelerometer) > 0.5 || (accelerometer_temp - accelerometer) < (-0.5))
+                accelerometer = accelerometer_temp;
 
         }
     }
