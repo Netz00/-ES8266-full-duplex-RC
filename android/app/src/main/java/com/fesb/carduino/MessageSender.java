@@ -11,6 +11,7 @@ import java.net.SocketException;
 public class MessageSender extends AsyncTask<String, Void, Void> {
 
 
+    // Configuration required for communication
     public static InetAddress ip;
     public static int port;
     int msg_length;
@@ -20,13 +21,17 @@ public class MessageSender extends AsyncTask<String, Void, Void> {
     String udpStr;
 
 
-
+    /**
+     * Async task for sending messages
+     *
+     * @param voids
+     * @return
+     */
     @Override
     protected Void doInBackground(String... voids) {
 
-        if(this.ip!=null) {
+        if (this.ip != null) {
             this.udpStr = voids[0];
-
 
             this.msg_length = udpStr.length();
             this.message = udpStr.getBytes();

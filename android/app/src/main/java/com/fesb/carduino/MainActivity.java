@@ -23,7 +23,7 @@ import java.net.UnknownHostException;
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     String ip;
     int port;
-    int fps;
+    int dbs; // delay between packets
 
     TextView IpTextView;
     TextView PortTextView;
@@ -33,60 +33,48 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private SensorManager sensorManager = null;
 
-    String msg="";
+    String msg = "";
     String tmp_msg = "";
-    int gas=0, rikverc=0,acc=1024,smjer1=0,smjer2=0;
-    float smjer=0,smjerD=0;
+    int forward = 0, backward = 0, acceleration = 1024, smjer1 = 0, smjer2 = 0;
+    float smjer = 0, smjerD = 0;
 
     MessageSender messageSender;
 
+    /**
+     * Simulating recursive delayed function
+     */
     Handler timerHandler = new Handler();
     Runnable timerRunnable = new Runnable() {
 
         @Override
         public void run() {
 
+            if (acceleration > 1024) {
+                backward = 0;
+                forward = (acceleration - 1024);
+            } else if (acceleration < 1024) {
+                forward = 0;
+                backward = -(acceleration - 1024);
 
-            if (acc > 1024) {
-                rikverc = 0;
-                gas = (acc - 1024);
-            }
-            else if (acc < 1024) {
-                gas = 0;
-                rikverc = -(acc - 1024);
-
-            }
-            else if (acc == 1024) {
-                gas = rikverc = 0;
+            } else if (acceleration == 1024) {
+                forward = backward = 0;
             }
 
-            if(smjer>0)
-            {
-                smjer2=0;
-                smjer1=Integer.valueOf((int) (smjer*110));
+            if (smjer > 0) {
+                smjer2 = 0;
+                smjer1 = Integer.valueOf((int) (smjer * 110));
+            } else if (smjer < 0) {
+                smjer1 = 0;
+                smjer2 = Integer.valueOf((int) (-smjer * 110));
+            } else if (smjer == 0) {
+                smjer1 = smjer2 = 0;
             }
-            else if(smjer<0)
-            {
-                smjer1=0;
-                smjer2=Integer.valueOf((int) (-smjer*110));
-            }
-            else if(smjer==0)
-            {
-                smjer1=smjer2=0;
-            }
-
 
             sendMsg();
 
-
-
-            timerHandler.postDelayed(this, fps);//ponovo izvrši sam sebe za vrijeme fps
-
-
+            timerHandler.postDelayed(this, dbs); // execute yourself after dbs time
 
         }
-
-
 
     };
 
@@ -96,21 +84,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SharedPreferences settings =  PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        // Load settings
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        ip=settings.getString("ip", "192.168.0.17");
-        port=settings.getInt("port", 4210);
-        fps=settings.getInt("fps", 200);
+        ip = settings.getString("ip", "192.168.0.17");
+        port = settings.getInt("port", 4210);
+        dbs = settings.getInt("fps", 200);
 
         IpTextView = (TextView) findViewById(R.id.ip);
         PortTextView = (TextView) findViewById(R.id.port);
         settingsB = (Button) findViewById(R.id.settings);
         startB = (Button) findViewById(R.id.start);
-        accelerateS=(SeekBar)findViewById(R.id.seekBar);
-
-
-
-
+        accelerateS = (SeekBar) findViewById(R.id.seekBar);
 
         display();
         reset();
@@ -122,26 +107,25 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
-
         startB.setText("start");//start-pause-continue
         startB.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 if (startB.getText().equals("pause")) {
-                    timerHandler.removeCallbacks(timerRunnable);//izbrisi sve zadatke od timerRunnable na cekanju
+                    // delete all timerRunnable tasks that are waiting for execution
+                    timerHandler.removeCallbacks(timerRunnable);
                     startB.setText("continue");
                     reset();
-                }
-                else {
-                    timerHandler.post(timerRunnable);//zapocni jedno mjerenje vremena
+                } else {
+                    // initiate first execution
+                    timerHandler.post(timerRunnable);
                     startB.setText("pause");
                     reset();
                 }
 
             }
         });
-
 
         accelerateS.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -156,65 +140,80 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
 
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 // TODO Auto-generated method stub
-                acc=progress;
+                acceleration = progress;
 
             }
         });
-
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         sensorManager.registerListener((SensorEventListener) this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
 
     }
 
-    public void reset()
-    {
-        accelerateS= findViewById(R.id.seekBar);
+    /**
+     * Reset all controls to 0 values
+     */
+    public void reset() {
+        accelerateS = findViewById(R.id.seekBar);
         accelerateS.setProgress(1024);
         accelerateS.refreshDrawableState();
-        gas=0;
-        rikverc=0;
-        smjer1=0;
-        smjer2=0;
-        smjer=0;
-        smjerD=0;
-        acc=1024;
+        forward = 0;
+        backward = 0;
+        smjer1 = 0;
+        smjer2 = 0;
+        smjer = 0;
+        smjerD = 0;
+        acceleration = 1024;
         sendMsg();
     }
 
+    /**
+     * Send message
+     */
+    private void sendMsg() {
 
-    private void sendMsg(){
+        // building message from parameters
+        msg = (String.valueOf(forward) + "&" + String.valueOf(backward) + ":" + String.valueOf(smjer1) + "&" + String.valueOf(smjer2) + "e");
 
-        msg=(String.valueOf(gas)+"&"+String.valueOf(rikverc)+":"+String.valueOf(smjer1)+"&"+String.valueOf(smjer2)+"e");
-        if(!tmp_msg.equals(msg)){
+        // checking if any new messages and sending if any
+        if (!tmp_msg.equals(msg)) {
             new MessageSender().execute(msg);
             Log.i("PACKET: ", msg);
-            tmp_msg=msg;
+            tmp_msg = msg;
         }
     }
 
+    /**
+     * Open setting view
+     */
     public void settings() {
         reset();
         Intent intent = new Intent(this, Settings.class);
         startActivity(intent);
     }
 
+    /**
+     * Display IP and port
+     * Set message sender IP and port
+     */
     public void display() {
         IpTextView.setText(ip);
-        PortTextView.setText(String.valueOf( port));
+        PortTextView.setText(String.valueOf(port));
         try {
-            MessageSender.ip= InetAddress.getByName(ip);
+            MessageSender.ip = InetAddress.getByName(ip);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-        MessageSender.port=port;
+        MessageSender.port = port;
     }
 
 
+    // --------------- Handling application state changes ---------------
+
     @Override
-    public void onPause(){
+    public void onPause() {
         timerHandler.removeCallbacks(timerRunnable);
         sensorManager.unregisterListener((SensorEventListener) this);
         startB.setText("continue");
@@ -234,10 +233,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onRestart() {
-        timerHandler.removeCallbacks(timerRunnable);//izbrisi sve zadatke od timerRunnable na cekanju
+        // delete all timerRunnable tasks that are waiting for execution
+        timerHandler.removeCallbacks(timerRunnable);
         startB.setText("continue");
-        sensorManager.registerListener((SensorEventListener) this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-                SensorManager.SENSOR_DELAY_GAME);
+        sensorManager.registerListener(
+                (SensorEventListener) this,
+                sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                SensorManager.SENSOR_DELAY_GAME
+        );
         reset();
         display();
         super.onRestart();
@@ -252,15 +255,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onDestroy();
     }
 
+    // ------------------------------------------------------------------
+
+
+    // --------------- Handling accelerometer sensor state changes ---------------
 
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 
-            smjerD =event.values[1];
+            smjerD = event.values[1];
 
-            if((smjerD-smjer)>0.5 || (smjerD-smjer)<(-0.5))
-                smjer =  smjerD;
+            if ((smjerD - smjer) > 0.5 || (smjerD - smjer) < (-0.5))
+                smjer = smjerD;
 
         }
     }
@@ -270,5 +277,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
+    // ------------------------------------------------------------------
 
 }
