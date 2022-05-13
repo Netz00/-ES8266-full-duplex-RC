@@ -31,6 +31,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     TextView IpTextView;
     TextView PortTextView;
+    TextView voltage;
+    TextView current;
     Button settingsB;
     Button startB;
     SeekBar accelerateS;
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     float accelerometer = 0, accelerometer_temp = 0;
 
     MessageSender messageSender;
+    UdpServerThread udpServerThread;
 
 
     // Sound variables
@@ -87,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
 
             sendMsg();
+            updateMeasurements();
 
             timerHandler.postDelayed(this, dbs); // execute yourself after dbs time
 
@@ -109,12 +113,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         IpTextView = (TextView) findViewById(R.id.ip);
         PortTextView = (TextView) findViewById(R.id.port);
+        voltage = (TextView) findViewById(R.id.voltage);
+        current = (TextView) findViewById(R.id.current);
         settingsB = (Button) findViewById(R.id.settings);
         startB = (Button) findViewById(R.id.start);
         accelerateS = (SeekBar) findViewById(R.id.seekBar);
 
         display();
         reset();
+
+        // Start listening for UDP port
+        udpServerThread = new UdpServerThread(4210);
 
 
         // AudioManager audio settings for adjusting the volume
@@ -155,7 +164,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sound1 = soundPool.load(this, R.raw.sound1, 1);
         sound2 = soundPool.load(this, R.raw.sound2, 1);
 
-
         // Settings button listener init
 
         settingsB.setOnClickListener(new View.OnClickListener() {
@@ -175,13 +183,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     timerHandler.removeCallbacks(timerRunnable);
                     startB.setText("continue");
                     reset();
+                    udpServerThread.setRunning(false);
+
                 } else {
                     // initiate first execution
                     timerHandler.post(timerRunnable);
                     startB.setText("pause");
                     reset();
+                    udpServerThread.start();
                 }
-
             }
         });
 
@@ -209,6 +219,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorManager.registerListener((SensorEventListener) this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
 
     }
+
+    public void updateMeasurements() {
+        voltage.setText(String.valueOf(udpServerThread.message));
+        current.setText(String.valueOf(udpServerThread.message));
+    }
+
 
     /**
      * Reset all controls to 0 values
@@ -302,6 +318,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onPause() {
+        udpServerThread.setRunning(false);
         timerHandler.removeCallbacks(timerRunnable);
         sensorManager.unregisterListener((SensorEventListener) this);
         startB.setText("continue");
@@ -312,6 +329,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onStop() {
+
+        if (udpServerThread != null) {
+            udpServerThread.setRunning(false);
+            udpServerThread = null;
+        }
         timerHandler.removeCallbacks(timerRunnable);
         sensorManager.unregisterListener((SensorEventListener) this);
         startB.setText("continue");
@@ -321,6 +343,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onRestart() {
+        if (udpServerThread != null) {
+            udpServerThread.setRunning(false);
+            udpServerThread = null;
+        }
         // delete all timerRunnable tasks that are waiting for execution
         timerHandler.removeCallbacks(timerRunnable);
         startB.setText("continue");
@@ -336,6 +362,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onDestroy() {
+        if (udpServerThread != null) {
+            udpServerThread.setRunning(false);
+            udpServerThread = null;
+        }
         timerHandler.removeCallbacks(timerRunnable);
         sensorManager.unregisterListener((SensorEventListener) this);
         startB.setText("start");
