@@ -8,6 +8,10 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -39,6 +43,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     float accelerometer = 0, accelerometer_temp = 0;
 
     MessageSender messageSender;
+
+
+    // Sound variables
+    private SoundPool soundPool;
+    private int sound1, sound2;
+    private int sound3StreamId;
+
+    boolean soundsLoaded = false;
+    float actVolume, maxVolume, volume;
+    AudioManager audioManager;
+    int counter;
+
 
     /**
      * Simulating recursive delayed function
@@ -99,6 +115,48 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         display();
         reset();
+
+
+        // AudioManager audio settings for adjusting the volume
+        audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+        actVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        volume = actVolume / maxVolume;
+
+        //Hardware buttons setting to adjust the media sound
+        this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+        // Sound pool init
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build();
+
+            soundPool = new SoundPool.Builder()
+                    .setMaxStreams(6)
+                    .setAudioAttributes(audioAttributes)
+                    .build();
+        } else {
+            soundPool = new SoundPool(6, AudioManager.STREAM_MUSIC, 0);
+        }
+
+        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                soundsLoaded = true;
+
+                // Test sound
+                playSound(sound1);
+            }
+        });
+
+        sound1 = soundPool.load(this, R.raw.sound1, 1);
+        sound2 = soundPool.load(this, R.raw.sound2, 1);
+
+
+        // Settings button listener init
 
         settingsB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -209,6 +267,36 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         MessageSender.port = port;
     }
 
+    /**
+     * Sound player
+     *
+     * @param soundID to be played
+     */
+
+    public void playSound(int soundID) {
+
+        // AudioManager audio settings for adjusting the volume
+        if (actVolume != (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)) {
+            audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+            actVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+            maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            volume = actVolume / maxVolume;
+        }
+
+        // Is the sound loaded does it already play?
+        if (soundsLoaded) {
+            soundPool.play(soundID, volume, volume, 1, 0, 1f);
+            counter = counter++;
+        }
+/* TODO
+        soundPool.play(sound1, 1, 1, 0, 0, 1);
+        //soundPool.pause(sound3StreamId);
+        soundPool.autoPause();
+        sound3StreamId = soundPool.play(sound1, 1, 1, 0, 0, 1);
+*/
+
+    }
+
 
     // --------------- Handling application state changes ---------------
 
@@ -252,6 +340,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorManager.unregisterListener((SensorEventListener) this);
         startB.setText("start");
         reset();
+        soundPool.release();
+        soundPool = null;
         super.onDestroy();
     }
 
