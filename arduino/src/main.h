@@ -17,16 +17,8 @@ struct _buffer;
 typedef struct _buffer *buffer;
 typedef struct _buffer
 {
-  char *end_of_buffer;
   char *data;
-  size_t remaining_space;
   size_t size;
 } Buffer;
-
-
-void appendFloatToBuffer(buffer buffer, float toAppend);
-void appendLongToBuffer(buffer buffer, long toAppend);
-void appendReadingToBuffer(buffer buffer, reading toAppend);
-
 
 #endif

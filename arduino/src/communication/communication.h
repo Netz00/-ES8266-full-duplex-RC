@@ -28,7 +28,7 @@ void communication_init();
  * OUTPUT - in_buffer
  *
  * */
-void communication_read_data(char *in_buffer, int bufer_size);
+boolean communication_read_data(char *in_buffer, int bufer_size);
 
 /***
  *

@@ -53,7 +53,7 @@ void communication_init()
 #endif
 }
 
-void communication_read_data(char *in_buffer, int bufer_size)
+boolean communication_read_data(char *in_buffer, int bufer_size)
 {
 #ifdef DEBUG
     Serial.printf("### Communication - reading data \n");
@@ -64,15 +64,6 @@ void communication_read_data(char *in_buffer, int bufer_size)
     if (packetSize)
     {
 
-#ifdef DEBUG
-        Serial.print("Received packet of size ");
-        Serial.println(packetSize);
-        Serial.print("From ");
-        Serial.print(remoteIp);
-        Serial.print(", port ");
-        Serial.println(Udp.remotePort());
-#endif
-
         remoteIp = Udp.remoteIP();
 
         len = Udp.read(in_buffer, bufer_size);
@@ -81,9 +72,18 @@ void communication_read_data(char *in_buffer, int bufer_size)
             in_buffer[len] = 0;
 
 #ifdef DEBUG
+
+        Serial.printf("Received packet of size %d From ", packetSize);
+        Serial.print(remoteIp);
+        Serial.printf(", port %d\n", Udp.remotePort());
+
         Serial.printf("Packet size: %d\nPacket: %s\n", len, in_buffer);
 #endif
+
+        return true;
     }
+
+    return false;
 }
 
 void communication_send_data(char *out_buffer)
@@ -91,6 +91,9 @@ void communication_send_data(char *out_buffer)
 
 #ifdef DEBUG
     Serial.printf("### Communication - sending data \n");
+    Serial.printf("Sending packet %s to ", out_buffer);
+    Serial.print(remoteIp);
+    Serial.printf(", port %d\n", remoteUdpPort);
 #endif
 
     // Send packet to remote UDP server
@@ -104,7 +107,7 @@ long communication_read_rssi()
 {
 
 #ifdef DEBUG
-    Serial.printf("### Communication - reading RSSI \n");
+    Serial.printf("### Communication - reading RSSI - %d \n", WiFi.RSSI());
 #endif
     return WiFi.RSSI();
 }
