@@ -10,6 +10,7 @@ void setup()
 {
 
 #ifdef DEBUG
+  delay(1000);
   Serial.begin(115200);
 #endif
 
@@ -48,6 +49,11 @@ void setup()
 
   // Initialize communication
   communication_init();
+
+#ifdef DEBUG
+
+  Serial.printf("END OF INIT PHASE.\n\n");
+#endif
 }
 
 void loop()
@@ -98,6 +104,9 @@ void loop()
     // send incoming stream to processing
     control_update(in_buffer.data);
 
+#ifdef DEBUG
+  Serial.printf("END OF LOOP\n\n");
+#endif
   delay(10);
 }
 

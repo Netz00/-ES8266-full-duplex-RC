@@ -10,7 +10,7 @@ void ultrasonic_sensor_init()
 {
 
 #ifdef DEBUG
-    Serial.printf("### Ultrasonic sensor - init ###");
+    Serial.printf("### Ultrasonic sensor - init \n");
 #endif
 
     // Sets the trigPin as an OUTPUT
@@ -23,7 +23,7 @@ float ultrasonic_sensor_read()
 {
 
 #ifdef DEBUG
-    Serial.printf("### Ultrasonic sensor - reading distance ###");
+    Serial.printf("### Ultrasonic sensor - reading distance \n");
 #endif
 
     // Clears the trigPin condition

@@ -6,7 +6,7 @@ void control_init()
 {
 
 #ifdef DEBUG
-    Serial.printf("### Controls - init ###");
+    Serial.printf("### Controls - init \n");
 #endif
 
     delay(500);
@@ -34,7 +34,7 @@ void control_update(char *in_buffer)
 {
 
 #ifdef DEBUG
-    Serial.printf("### Controls - update pins ###");
+    Serial.printf("### Controls - update pins \n");
 #endif
 
     // Intepreting buffer position into local variables

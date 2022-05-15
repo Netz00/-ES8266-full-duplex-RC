@@ -9,6 +9,9 @@
 #ifndef Communication_h
 #define Communication_h
 
+#define DEBUG // DEBUG = 0 -> DEBUG mode ON, otherwise OFF
+
+
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 

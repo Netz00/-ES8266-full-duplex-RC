@@ -4,7 +4,7 @@
 #define IN_BUFFER_SIZE 20  // client -> arduino buffer size
 #define OUT_BUFFER_SIZE 23 // arduino -> client buffer size
 
-#define DEBUG 1 // DEBUG = 0 -> DEBUG mode ON, otherwise OFF
+#define DEBUG // DEBUG = 0 -> DEBUG mode ON, otherwise OFF
 
 #include <ESP8266WiFi.h>
 #include "./controls/controls.h"

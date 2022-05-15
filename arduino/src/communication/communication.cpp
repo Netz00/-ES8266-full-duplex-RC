@@ -1,8 +1,11 @@
 #include "communication.h"
 
 // Acess point credentials
-const char *ssid = "1234";
-const char *password = "qwertz1234";
+// const char *ssid = "1234";
+// const char *password = "qwertz1234";
+
+const char *ssid = "5BC0D9";
+const char *password = "vsmv37rx2c";
 
 WiFiUDP Udp;
 
@@ -15,7 +18,7 @@ void communication_init()
 {
 
 #ifdef DEBUG
-    Serial.printf("### Communication - init ###");
+    Serial.printf("### Communication - init #\n");
 #endif
 
 #ifdef DEBUG
@@ -53,7 +56,7 @@ void communication_init()
 void communication_read_data(char *in_buffer, int bufer_size)
 {
 #ifdef DEBUG
-    Serial.printf("### Communication - reading data ###");
+    Serial.printf("### Communication - reading data \n");
 #endif
 
     // Checking if there any new messages from client
@@ -87,7 +90,7 @@ void communication_send_data(char *out_buffer)
 {
 
 #ifdef DEBUG
-    Serial.printf("### Communication - sending data ###");
+    Serial.printf("### Communication - sending data \n");
 #endif
 
     // Send packet to remote UDP server
@@ -101,7 +104,7 @@ long communication_read_rssi()
 {
 
 #ifdef DEBUG
-    Serial.printf("### Communication - reading RSSI ###");
+    Serial.printf("### Communication - reading RSSI \n");
 #endif
     return WiFi.RSSI();
 }

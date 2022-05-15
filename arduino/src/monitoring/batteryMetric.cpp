@@ -5,7 +5,7 @@ Reading metric;
 void metrics_init()
 {
 #ifdef DEBUG
-    Serial.printf("### Battery metric - pins init ###");
+    Serial.printf("### Battery metric - pins init \n");
 #endif
 }
 
@@ -13,7 +13,7 @@ reading metrics_read()
 {
 
 #ifdef DEBUG
-    Serial.printf("### Battery metric - reading data ###");
+    Serial.printf("### Battery metric - reading data \n");
 #endif
 
     metric.current = 10.324;

@@ -2,6 +2,8 @@
 #ifndef Ultrasonic_sensor_h
 #define Ultrasonic_sensor_h
 
+#define DEBUG // DEBUG = 0 -> DEBUG mode ON, otherwise OFF
+
 #include <ESP8266WiFi.h>
 // ----------------------------------------------------------------
 //
