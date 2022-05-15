@@ -39,6 +39,6 @@ boolean communication_read_data(char *in_buffer, int bufer_size);
  * */
 void communication_send_data(char *out_buffer);
 
-long communication_read_rssi();
+int8_t communication_read_rssi();
 
 #endif

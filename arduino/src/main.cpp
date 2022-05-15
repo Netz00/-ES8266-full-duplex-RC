@@ -71,7 +71,7 @@ void loop()
 
   // Read singla strength
 
-  long rssi = communication_read_rssi();
+  int8_t rssi = communication_read_rssi();
 
   // Combine readings into shared buffer
 
@@ -79,7 +79,7 @@ void loop()
   // appendReadingToBuffer(&out_buffer, batteryMetric);
   // appendLongToBuffer(&out_buffer, rssi);
 
-  int written_bytes = snprintf(out_buffer.data, OUT_BUFFER_SIZE, "%lf&%lf&%lf&%f&%ld\n", batteryMetric->current, batteryMetric->voltage1, batteryMetric->voltage2, ultrasonicSensor, rssi);
+  int written_bytes = snprintf(out_buffer.data, OUT_BUFFER_SIZE, "%.2f&%.2f&%.2f&%.2f&%d\0", batteryMetric->current, batteryMetric->voltage1, batteryMetric->voltage2, ultrasonicSensor, rssi);
 
   if (written_bytes > 0)
     communication_send_data(out_buffer.data); // send data to remote UDP server

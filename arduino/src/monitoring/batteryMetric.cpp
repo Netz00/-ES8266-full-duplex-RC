@@ -18,7 +18,7 @@ reading metrics_read()
 
     metric.current = 10.324;
     metric.voltage1 = 4.324;
-    metric.voltage1 = 4.324;
+    metric.voltage2 = 4.324;
 
     return &metric;
 }

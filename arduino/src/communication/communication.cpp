@@ -55,12 +55,14 @@ void communication_init()
 
 boolean communication_read_data(char *in_buffer, int bufer_size)
 {
-#ifdef DEBUG
-    Serial.printf("### Communication - reading data \n");
-#endif
 
     // Checking if there any new messages from client
     packetSize = Udp.parsePacket();
+
+#ifdef DEBUG
+    Serial.printf("### Communication - reading data - %s \n", packetSize ? "NEW DATA" : "NO NEW DATA");
+#endif
+
     if (packetSize)
     {
 
@@ -103,11 +105,11 @@ void communication_send_data(char *out_buffer)
 }
 
 // Read signal strengths
-long communication_read_rssi()
+int8_t communication_read_rssi()
 {
 
 #ifdef DEBUG
-    Serial.printf("### Communication - reading RSSI - %d \n", WiFi.RSSI());
+    Serial.printf("### Communication - reading RSSI = %d \n", WiFi.RSSI());
 #endif
     return WiFi.RSSI();
 }
