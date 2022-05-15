@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         reset();
 
         // Start listening for UDP port
-        udpServerThread = new UdpServerThread(4210);
+        udpServerThread = new UdpServerThread(4211);
 
 
         // AudioManager audio settings for adjusting the volume
@@ -180,17 +180,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onClick(View v) {
                 if (startB.getText().equals("pause")) {
                     // delete all timerRunnable tasks that are waiting for execution
+                    udpServerThread.setRunning(false);
                     timerHandler.removeCallbacks(timerRunnable);
                     startB.setText("continue");
                     reset();
-                    udpServerThread.setRunning(false);
 
-                } else {
+                } else if (startB.getText().equals("start")) {
                     // initiate first execution
                     timerHandler.post(timerRunnable);
                     startB.setText("pause");
                     reset();
                     udpServerThread.start();
+                } else { // continue
+                    timerHandler.post(timerRunnable);
+                    startB.setText("pause");
+                    reset();
+                    udpServerThread.setRunning(false);
                 }
             }
         });
