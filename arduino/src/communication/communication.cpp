@@ -1,5 +1,16 @@
 #include "communication.h"
 
+// Acess point credentials
+const char *ssid = "1234";
+const char *password = "qwertz1234";
+
+WiFiUDP Udp;
+
+IPAddress remoteIp;
+
+int packetSize;
+int len;
+
 void init_communictaion()
 {
 #ifdef DEBUG

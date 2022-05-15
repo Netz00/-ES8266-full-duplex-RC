@@ -7,7 +7,12 @@
  *
  * */
 
+#ifndef Controls_h
+#define Controls_h
+
 #include <ESP8266WiFi.h>
+
+
 
 #define new_frequency 50 // use PWM frequency optimised for your hardware
 
@@ -30,10 +35,12 @@ typedef struct _pos
   size_t right;
 } CarPostion;
 
-pos data;
 
 // Initialising GPIO outputs
 void control_init();
 
 // Intepreting in_buffer into GPIO output pins state
 void changeOfDirection(char *in_buffer);
+
+
+#endif

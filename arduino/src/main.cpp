@@ -37,7 +37,7 @@ void setup()
   control_init();
 
   // Initialize metrics
-  init_metrics();
+  //init_metrics();
 
   // Initialize ultrasonicSensor
  // init_ultrasonic_sensor();

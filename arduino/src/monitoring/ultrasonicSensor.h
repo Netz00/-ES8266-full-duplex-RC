@@ -1,4 +1,7 @@
 
+#ifndef Ultrasonic_sensor_h
+#define Ultrasonic_sensor_h
+
 #include <ESP8266WiFi.h>
 // ----------------------------------------------------------------
 //
@@ -9,15 +12,14 @@
 // Tested on 17 September 2019
 // ----------------------------------------------------------------
 //
-#define echoPin 2
+
 // attach pin D2 Arduino to pin Echo of HC-SR04
-#define trigPin 3
+#define echoPin 2
+
 // attach pin D3 Arduino to pin Trig of HC-SR04
-// defines variables
-long duration;
-// variable for the duration of sound wave travel
-int distance;
-// variable for the distance measurement
+#define trigPin 3
 
 void init_ultrasonic_sensor();
 float get_ultrasonic_distance();
+
+#endif

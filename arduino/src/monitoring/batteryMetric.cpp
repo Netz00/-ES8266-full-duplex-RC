@@ -1,5 +1,7 @@
 #include "batteryMetric.h"
 
+reading metric;
+
 void init_metrics()
 {
 }

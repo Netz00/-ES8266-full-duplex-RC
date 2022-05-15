@@ -1,3 +1,7 @@
+
+#ifndef Battery_metric_h
+#define Battery_metric_h
+
 #include <ESP8266WiFi.h>
 
 /**
@@ -19,7 +23,7 @@ typedef struct _reading
     float current;
 } Reading;
 
-reading metric;
-
 void init_metrics();
 reading readMetrics();
+
+#endif

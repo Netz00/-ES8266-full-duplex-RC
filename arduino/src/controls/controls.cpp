@@ -1,15 +1,17 @@
 #include "controls.h"
 
+pos position;
+
 void control_init()
 {
 
     delay(500);
 
-    data = NULL;
-    data = (pos)malloc(sizeof(CarPostion));
+    position = NULL;
+    position = (pos)malloc(sizeof(CarPostion));
 
 #ifdef DEBUG
-    if (data == NULL)
+    if (position == NULL)
         Serial.printf("Failed to allocate memory.\n");
 #endif
 
@@ -35,25 +37,25 @@ void control_init()
 void changeOfDirection(char *in_buffer)
 {
 
-    // Intepreting buffer data into local variables
+    // Intepreting buffer position into local variables
 
-    sscanf(in_buffer, "%u&%u:%u&%ue", &(data->forward), &(data->backward), &(data->left), &(data->right));
+    sscanf(in_buffer, "%u&%u:%u&%ue", &(position->forward), &(position->backward), &(position->left), &(position->right));
 
     // Updating GPIO pins state by local variables values
 
-    if (data->forward != data->backward) // if not 0 both
+    if (position->forward != position->backward) // if not 0 both
     {
-        if (data->backward == 0)
+        if (position->backward == 0)
         {
             analogWrite(PWM_B, 0);
             delayMicroseconds(200);
-            analogWrite(PWM_F, data->forward);
+            analogWrite(PWM_F, position->forward);
         }
-        if (data->forward == 0)
+        if (position->forward == 0)
         {
             analogWrite(PWM_F, 0);
             delayMicroseconds(200);
-            analogWrite(PWM_B, data->backward);
+            analogWrite(PWM_B, position->backward);
         }
     }
     else
@@ -62,19 +64,19 @@ void changeOfDirection(char *in_buffer)
         analogWrite(PWM_B, 0);
     }
 
-    if (data->left != data->right) // if not 0 both
+    if (position->left != position->right) // if not 0 both
     {
-        if (data->right == 0)
+        if (position->right == 0)
         {
             analogWrite(PWM_R, 0);
             delayMicroseconds(200);
-            analogWrite(PWM_L, data->left);
+            analogWrite(PWM_L, position->left);
         }
-        if (data->left == 0)
+        if (position->left == 0)
         {
             analogWrite(PWM_L, 0);
             delayMicroseconds(200);
-            analogWrite(PWM_R, data->right);
+            analogWrite(PWM_R, position->right);
         }
     }
     else

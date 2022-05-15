@@ -1,5 +1,11 @@
 #include "ultrasonicSensor.h"
 
+// defines variables
+long duration;
+// variable for the duration of sound wave travel
+int distance;
+// variable for the distance measurement
+
 void init_ultrasonic_sensor()
 {
     // Sets the trigPin as an OUTPUT

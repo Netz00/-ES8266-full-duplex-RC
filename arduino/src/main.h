@@ -1,15 +1,16 @@
-#include <ESP8266WiFi.h>
+#ifndef Main_H
+#define Main_H
 
 #define IN_BUFFER_SIZE 20  // client -> arduino buffer size
 #define OUT_BUFFER_SIZE 23 // arduino -> client buffer size
 
 #define DEBUG 1 // DEBUG = 0 -> DEBUG mode ON, otherwise OFF
 
+#include <ESP8266WiFi.h>
 #include "./controls/controls.h"
-//#include "./communication/communication.h"
+#include "./communication/communication.h"
 #include "./monitoring/batteryMetric.h"
-//#include "./monitoring/ultrasonicSensor.h"
-
+#include "./monitoring/ultrasonicSensor.h"
 
 // Buffer implentation
 struct _buffer;
@@ -33,3 +34,5 @@ buffer in_buffer;
 
 // out_buffer used for transfering data, sensors -> communications -> client
 buffer out_buffer;
+
+#endif
