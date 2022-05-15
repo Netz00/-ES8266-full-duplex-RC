@@ -19,7 +19,7 @@
         <activity
             android:name=".Settings"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="landscape"
             tools:ignore="LockedOrientationActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -32,7 +32,6 @@
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
