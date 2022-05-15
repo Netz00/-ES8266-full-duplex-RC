@@ -6,16 +6,26 @@ long duration;
 int distance;
 // variable for the distance measurement
 
-void init_ultrasonic_sensor()
+void ultrasonic_sensor_init()
 {
+
+#ifdef DEBUG
+    Serial.printf("### Ultrasonic sensor - init ###");
+#endif
+
     // Sets the trigPin as an OUTPUT
     pinMode(trigPin, OUTPUT);
 
     // Sets the echoPin as an INPUT
     pinMode(echoPin, INPUT);
 }
-float get_ultrasonic_distance()
+float ultrasonic_sensor_read()
 {
+
+#ifdef DEBUG
+    Serial.printf("### Ultrasonic sensor - reading distance ###");
+#endif
+
     // Clears the trigPin condition
     digitalWrite(trigPin, LOW); //
     delayMicroseconds(20000);

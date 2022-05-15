@@ -13,15 +13,10 @@
 #include <WiFiUdp.h>
 
 #define localUdpPort 4210 // port ESP8266 will be listening
-
-
 #define remoteUdpPort 4211 // port ESP8266 will be connecting to
 
-
-
-
 // Establishing wifi connection and listening socket for read_data
-void init_communictaion();
+void communication_init();
 
 /***
  *
@@ -30,7 +25,7 @@ void init_communictaion();
  * OUTPUT - in_buffer
  *
  * */
-void read_data(char *in_buffer, int bufer_size);
+void communication_read_data(char *in_buffer, int bufer_size);
 
 /***
  *
@@ -39,8 +34,8 @@ void read_data(char *in_buffer, int bufer_size);
  * OUTPUT - UDP datagrams from client
  *
  * */
-void send_data(char *out_buffer);
+void communication_send_data(char *out_buffer);
 
-long read_rssi();
+long communication_read_rssi();
 
 #endif

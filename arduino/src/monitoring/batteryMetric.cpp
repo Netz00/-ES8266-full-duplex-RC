@@ -1,17 +1,24 @@
 #include "batteryMetric.h"
 
-reading metric;
+Reading metric;
 
-void init_metrics()
+void metrics_init()
 {
+#ifdef DEBUG
+    Serial.printf("### Battery metric - pins init ###");
+#endif
 }
 
-reading readMetrics()
+reading metrics_read()
 {
 
-    metric->current = 10.324;
-    metric->voltage1 = 4.324;
-    metric->voltage1 = 4.324;
+#ifdef DEBUG
+    Serial.printf("### Battery metric - reading data ###");
+#endif
 
-    return metric;
+    metric.current = 10.324;
+    metric.voltage1 = 4.324;
+    metric.voltage1 = 4.324;
+
+    return &metric;
 }

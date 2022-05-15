@@ -19,7 +19,7 @@
 // attach pin D3 Arduino to pin Trig of HC-SR04
 #define trigPin 3
 
-void init_ultrasonic_sensor();
-float get_ultrasonic_distance();
+void ultrasonic_sensor_init();
+float ultrasonic_sensor_read();
 
 #endif

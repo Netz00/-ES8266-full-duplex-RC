@@ -40,7 +40,7 @@ typedef struct _pos
 void control_init();
 
 // Intepreting in_buffer into GPIO output pins state
-void changeOfDirection(char *in_buffer);
+void control_update(char *in_buffer);
 
 
 #endif

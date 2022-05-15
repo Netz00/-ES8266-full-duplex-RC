@@ -11,8 +11,13 @@ IPAddress remoteIp;
 int packetSize;
 int len;
 
-void init_communictaion()
+void communication_init()
 {
+
+#ifdef DEBUG
+    Serial.printf("### Communication - init ###");
+#endif
+
 #ifdef DEBUG
     Serial.printf("Connecting to %s ", ssid);
 #endif
@@ -45,8 +50,12 @@ void init_communictaion()
 #endif
 }
 
-void read_data(char *in_buffer, int bufer_size)
+void communication_read_data(char *in_buffer, int bufer_size)
 {
+#ifdef DEBUG
+    Serial.printf("### Communication - reading data ###");
+#endif
+
     // Checking if there any new messages from client
     packetSize = Udp.parsePacket();
     if (packetSize)
@@ -74,8 +83,13 @@ void read_data(char *in_buffer, int bufer_size)
     }
 }
 
-void send_data(char *out_buffer)
+void communication_send_data(char *out_buffer)
 {
+
+#ifdef DEBUG
+    Serial.printf("### Communication - sending data ###");
+#endif
+
     // Send packet to remote UDP server
     Udp.beginPacket(remoteIp, remoteUdpPort);
     Udp.write(out_buffer);
@@ -83,7 +97,11 @@ void send_data(char *out_buffer)
 }
 
 // Read signal strengths
-long read_rssi()
+long communication_read_rssi()
 {
+
+#ifdef DEBUG
+    Serial.printf("### Communication - reading RSSI ###");
+#endif
     return WiFi.RSSI();
 }

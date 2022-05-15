@@ -1,5 +1,11 @@
 #include "main.h"
 
+// in_buffer used for transfering data, client -> communications -> controls
+Buffer in_buffer;
+
+// out_buffer used for transfering data, sensors -> communications -> client
+Buffer out_buffer;
+
 void setup()
 {
 
@@ -9,27 +15,25 @@ void setup()
 
   // Initialize buffers
 
-  in_buffer->data = NULL;
-  in_buffer->data = (char *)malloc(IN_BUFFER_SIZE * sizeof(char));
-  in_buffer->end_of_buffer = in_buffer->data;
-  in_buffer->remaining_space = sizeof(buffer);
-  in_buffer->size = IN_BUFFER_SIZE;
+  in_buffer.data = NULL;
+  in_buffer.data = (char *)malloc(IN_BUFFER_SIZE * sizeof(char));
+  in_buffer.end_of_buffer = in_buffer.data;
+  in_buffer.remaining_space = sizeof(buffer);
+  in_buffer.size = IN_BUFFER_SIZE;
 
 #ifdef DEBUG
-  if (in_buffer->data == NULL)
+  if (in_buffer.data == NULL)
     Serial.printf("Failed to allocate memory.\n");
 #endif
 
-  // Initialize buffers
-
-  out_buffer->data = NULL;
-  out_buffer->data = (char *)malloc(OUT_BUFFER_SIZE * sizeof(char));
-  out_buffer->end_of_buffer = out_buffer->data;
-  out_buffer->remaining_space = sizeof(buffer);
-  out_buffer->size = OUT_BUFFER_SIZE;
+  out_buffer.data = NULL;
+  out_buffer.data = (char *)malloc(OUT_BUFFER_SIZE * sizeof(char));
+  out_buffer.end_of_buffer = out_buffer.data;
+  out_buffer.remaining_space = sizeof(buffer);
+  out_buffer.size = OUT_BUFFER_SIZE;
 
 #ifdef DEBUG
-  if (out_buffer == NULL)
+  if (out_buffer.data == NULL)
     Serial.printf("Failed to allocate memory.\n");
 #endif
 
@@ -37,13 +41,13 @@ void setup()
   control_init();
 
   // Initialize metrics
-  //init_metrics();
+  metrics_init();
 
   // Initialize ultrasonicSensor
- // init_ultrasonic_sensor();
+  ultrasonic_sensor_init();
 
   // Initialize communication
-  //init_communictaion();
+  communication_init();
 }
 
 void loop()
@@ -55,49 +59,48 @@ void loop()
    *
    */
 
-/*
   // Read ultrasonicSensor
 
-  float ultrasonicSensor = get_ultrasonic_distance();
+  float ultrasonicSensor = ultrasonic_sensor_read();
 
   // Read batteryMetric
 
-  reading batteryMetric = readMetrics();
+  reading batteryMetric = metrics_read();
 
   // Read singla strength
 
-  long rssi = read_rssi();
+  long rssi = communication_read_rssi();
 
   // Combine readings into shared buffer
 
-  appendFloatToBuffer(out_buffer, ultrasonicSensor);
+  appendFloatToBuffer(&out_buffer, ultrasonicSensor);
 
-  appendReadingToBuffer(out_buffer, batteryMetric);
+  appendReadingToBuffer(&out_buffer, batteryMetric);
 
-  appendLongToBuffer(out_buffer, rssi);
+  appendLongToBuffer(&out_buffer, rssi);
 
   // Add terminating char
-  out_buffer->end_of_buffer[0] = '\0';
+  out_buffer.end_of_buffer[0] = '\0';
 
   // send data to remote UDP server
-  send_data(out_buffer->data);*/
+  communication_send_data(out_buffer.data);
 
   /**
    * Controls PART
    * Android client --> UDP server
    *
    */
-/*
+
   // read incoming UDP stream
-  read_data(in_buffer->data, in_buffer->size);
+  communication_read_data(in_buffer.data, in_buffer.size);
   // check if any new message
-  if (strlen(in_buffer->data) > 0)
+  if (strlen(in_buffer.data) > 0)
     // send incoming stream to processing
-    changeOfDirection(in_buffer->data);
-*/
+    control_update(in_buffer.data);
+
   delay(10);
 }
-/*
+
 void appendFloatToBuffer(buffer buffer, float toAppend)
 {
   int written_bytes = snprintf(buffer->end_of_buffer, buffer->remaining_space, "%f&", toAppend);
@@ -128,4 +131,3 @@ void appendReadingToBuffer(buffer buffer, reading toAppend)
     buffer->remaining_space -= written_bytes;
   }
 }
-*/

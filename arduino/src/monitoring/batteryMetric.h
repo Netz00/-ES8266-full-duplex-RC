@@ -23,7 +23,7 @@ typedef struct _reading
     float current;
 } Reading;
 
-void init_metrics();
-reading readMetrics();
+void metrics_init();
+reading metrics_read();
 
 #endif

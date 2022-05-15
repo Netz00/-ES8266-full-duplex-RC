@@ -23,16 +23,10 @@ typedef struct _buffer
   size_t size;
 } Buffer;
 
-/*
+
 void appendFloatToBuffer(buffer buffer, float toAppend);
 void appendLongToBuffer(buffer buffer, long toAppend);
 void appendReadingToBuffer(buffer buffer, reading toAppend);
-*/
 
-// in_buffer used for transfering data, client -> communications -> controls
-buffer in_buffer;
-
-// out_buffer used for transfering data, sensors -> communications -> client
-buffer out_buffer;
 
 #endif
