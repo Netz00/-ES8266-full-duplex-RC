@@ -4,7 +4,6 @@
 
 #define DEBUG // DEBUG = 0 -> DEBUG mode ON, otherwise OFF
 
-
 #include <ESP8266WiFi.h>
 
 /**
@@ -16,6 +15,11 @@
 #define VOLTAGE1 2
 #define VOLTAGE2 3
 #define CURRENT 4
+
+// Voltage dividor R values defined
+
+#define VOLTAGE_DIVIDER_R1 100000
+#define VOLTAGE_DIVIDER_R2 10000
 
 struct _reading;
 typedef struct _reading *reading;
