@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     TextView PortTextView;
     TextView voltage;
     TextView current;
+    TextView rssi;
     Button settingsB;
     Button startB;
     SeekBar accelerateS;
@@ -119,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         PortTextView = (TextView) findViewById(R.id.port);
         voltage = (TextView) findViewById(R.id.voltage);
         current = (TextView) findViewById(R.id.current);
+        rssi = (TextView) findViewById(R.id.rssi);
         settingsB = (Button) findViewById(R.id.settings);
         startB = (Button) findViewById(R.id.start);
         accelerateS = (SeekBar) findViewById(R.id.seekBar);
@@ -238,9 +240,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             previousMeasurement = measurement;
 
             String[] parsed = parseString(measurement);
-            voltage.setText("Cell 1: " + parsed[0] + " V  Cell 2 : " + parsed[1] + " V" + " RSSI: " + parsed[4]);
+            voltage.setText("Cell 1: " + parsed[0] + " V  Cell 2 : " + parsed[1] + " V");
             current.setText("Load: " + parsed[2] + "A");
-
+            rssi.setText("RSSI: " + parsed[4] + "dBm");
 
             float distance = Float.parseFloat(parsed[3]);
 
@@ -358,8 +360,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         MessageSender.port = port;
     }
-
-
 
 
     // --------------- Handling application state changes ---------------

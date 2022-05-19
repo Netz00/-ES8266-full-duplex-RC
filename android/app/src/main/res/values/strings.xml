@@ -9,4 +9,5 @@
     <string name="fps">DELAY BETWEEN PACKETS [ms]</string>
     <string name="defaultVoltage">Cell 1: 0 V  Cell 2 : 0 V</string>
     <string name="defaultCurrent">Load: 0 A</string>
+    <string name="defaultRssi">RSSI: 0 dBm</string>
 </resources>
