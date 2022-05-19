@@ -37,7 +37,7 @@ public class UdpServerThread extends Thread {
             Log.e("UdpServerThread", "UDP Server is running");
 
             while (running) {
-                byte[] buf = new byte[20];
+                byte[] buf = new byte[31];
                 String datagram;
                 // receive request
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
@@ -48,8 +48,8 @@ public class UdpServerThread extends Thread {
                 int port = packet.getPort();
 
 
-                datagram = new String(buf, 0, 20);
-                String[] tokens = datagram.split("e");
+                datagram = new String(buf, 0, 31);
+                String[] tokens = datagram.split("\0");
                 message = tokens[0];
 
                 Log.e("UdpServerThread", "Request from: " + address + ":" + port + " message: " + message + "\n");
