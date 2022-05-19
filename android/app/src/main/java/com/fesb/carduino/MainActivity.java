@@ -1,5 +1,7 @@
 package com.fesb.carduino;
 
+import static java.lang.Math.exp;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -58,6 +60,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     AudioManager audioManager;
     int counter;
 
+    Integer measureDelay = 50;
+    String previousMeasurement = "";
+
 
     /**
      * Simulating recursive delayed function
@@ -90,7 +95,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
 
             sendMsg();
-            updateMeasurements();
 
             timerHandler.postDelayed(this, dbs); // execute yourself after dbs time
 
@@ -155,9 +159,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
                 soundsLoaded = true;
-
-                // Test sound
-                playSound(sound1);
             }
         });
 
@@ -181,17 +182,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     // delete all timerRunnable tasks that are waiting for execution
                     udpServerThread.setRunning(false);
                     timerHandler.removeCallbacks(timerRunnable);
+                    timerHandler.removeCallbacks(timerRunnableMeasurement);
                     startB.setText("continue");
                     reset();
 
                 } else if (startB.getText().equals("start")) {
                     // initiate first execution
                     timerHandler.post(timerRunnable);
+                    timerHandler.post(timerRunnableMeasurement);
                     startB.setText("pause");
                     reset();
                     udpServerThread.start();
                 } else { // continue
                     timerHandler.post(timerRunnable);
+                    timerHandler.post(timerRunnableMeasurement);
                     startB.setText("pause");
                     reset();
                     udpServerThread.setRunning(false);
@@ -225,8 +229,76 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public void updateMeasurements() {
-        voltage.setText(String.valueOf(udpServerThread.message));
-        current.setText(String.valueOf(udpServerThread.message));
+
+        String measurement = "3.8&3.936&6.936&49&76";
+
+        //String measurement=String.valueOf(udpServerThread.message);
+
+        if (!previousMeasurement.equals(measurement)) {
+            previousMeasurement = measurement;
+
+            String[] parsed = parseString(measurement);
+            voltage.setText("Cell 1: " + parsed[0] + " V  Cell 2 : " + parsed[1] + " V" + " RSSI: " + parsed[4]);
+            current.setText("Load: " + parsed[2] + "A");
+
+
+            float distance = Float.parseFloat(parsed[3]);
+
+            // 145 entire beep
+            if (distance < 50) {
+                float delay = (float) (exp(distance / 8) + 150);
+                measureDelay = Math.round(delay);
+                playSound(sound1);
+            } else {
+                measureDelay = 600;
+            }
+
+        }
+
+    }
+
+    Runnable timerRunnableMeasurement = new Runnable() {
+
+        @Override
+        public void run() {
+            updateMeasurements();
+            timerHandler.postDelayed(this, measureDelay); // execute yourself after dbs time
+        }
+    };
+
+
+    public String[] parseString(String str) {
+        return str.split("[&]");
+    }
+
+    /**
+     * Sound player
+     *
+     * @param soundID to be played
+     */
+
+    public void playSound(int soundID) {
+
+        // AudioManager audio settings for adjusting the volume
+        if (actVolume != (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)) {
+            audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+            actVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+            maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            volume = actVolume / maxVolume;
+        }
+
+        // Is the sound loaded does it already play?
+        if (soundsLoaded) {
+            soundPool.play(soundID, volume, volume, 1, 0, 1f);
+            counter = counter++;
+        }
+/* TODO
+        soundPool.play(sound1, 1, 1, 0, 0, 1);
+        //soundPool.pause(sound3StreamId);
+        soundPool.autoPause();
+        sound3StreamId = soundPool.play(sound1, 1, 1, 0, 0, 1);
+*/
+
     }
 
 
@@ -287,35 +359,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         MessageSender.port = port;
     }
 
-    /**
-     * Sound player
-     *
-     * @param soundID to be played
-     */
 
-    public void playSound(int soundID) {
-
-        // AudioManager audio settings for adjusting the volume
-        if (actVolume != (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)) {
-            audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-            actVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-            maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-            volume = actVolume / maxVolume;
-        }
-
-        // Is the sound loaded does it already play?
-        if (soundsLoaded) {
-            soundPool.play(soundID, volume, volume, 1, 0, 1f);
-            counter = counter++;
-        }
-/* TODO
-        soundPool.play(sound1, 1, 1, 0, 0, 1);
-        //soundPool.pause(sound3StreamId);
-        soundPool.autoPause();
-        sound3StreamId = soundPool.play(sound1, 1, 1, 0, 0, 1);
-*/
-
-    }
 
 
     // --------------- Handling application state changes ---------------
@@ -324,6 +368,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onPause() {
         udpServerThread.setRunning(false);
         timerHandler.removeCallbacks(timerRunnable);
+        timerHandler.removeCallbacks(timerRunnableMeasurement);
         sensorManager.unregisterListener((SensorEventListener) this);
         startB.setText("continue");
         reset();
@@ -339,6 +384,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             udpServerThread = null;
         }
         timerHandler.removeCallbacks(timerRunnable);
+        timerHandler.removeCallbacks(timerRunnableMeasurement);
         sensorManager.unregisterListener((SensorEventListener) this);
         startB.setText("continue");
         reset();
@@ -353,6 +399,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         // delete all timerRunnable tasks that are waiting for execution
         timerHandler.removeCallbacks(timerRunnable);
+        timerHandler.removeCallbacks(timerRunnableMeasurement);
         startB.setText("continue");
         sensorManager.registerListener(
                 (SensorEventListener) this,
@@ -371,6 +418,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             udpServerThread = null;
         }
         timerHandler.removeCallbacks(timerRunnable);
+        timerHandler.removeCallbacks(timerRunnableMeasurement);
         sensorManager.unregisterListener((SensorEventListener) this);
         startB.setText("start");
         reset();
