@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     int counter;
 
     Integer measureDelay = 50;
+    float distance;
     String previousMeasurement = "";
 
 
@@ -232,29 +233,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public void updateMeasurements() {
 
-        String measurement = "3.8&3.936&6.936&49&76";
+        String measurement = udpServerThread.message;
 
-        //String measurement=String.valueOf(udpServerThread.message);
-
-        if (!previousMeasurement.equals(measurement)) {
+        if (measurement != null
+                && !previousMeasurement.equals(measurement)
+                && measurement.matches("[0-9]*\\.[0-9]+&([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[eE]([+-]?\\d+))?&[0-9]*\\.[0-9]+&([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[eE]([+-]?\\d+))?&([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[eE]([+-]?\\d+))?")
+        ) {
             previousMeasurement = measurement;
 
-            String[] parsed = parseString(measurement);
+            String[] parsed = measurement.split("[&]");
             voltage.setText("Cell 1: " + parsed[0] + " V  Cell 2 : " + parsed[1] + " V");
             current.setText("Load: " + parsed[2] + "A");
             rssi.setText("RSSI: " + parsed[4] + "dBm");
 
-            float distance = Float.parseFloat(parsed[3]);
+            distance = Float.parseFloat(parsed[3]);
+        }
 
-            // 145 entire beep
-            if (distance < 50) {
-                float delay = (float) (exp(distance / 8) + 150);
-                measureDelay = Math.round(delay);
-                playSound(sound1);
-            } else {
-                measureDelay = 600;
-            }
-
+        // 110 entire beep
+        if (distance < 50) {
+            float delay = (float) (exp(distance / 8) + 150);
+            measureDelay = Math.round(delay);
+            playSound(sound1);
+        } else {
+            measureDelay = 600;
         }
 
     }
