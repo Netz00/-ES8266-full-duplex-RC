@@ -16,10 +16,10 @@
 //
 
 // attach pin D2 Arduino to pin Echo of HC-SR04
-#define echoPin 2
+#define echoPin 14
 
 // attach pin D3 Arduino to pin Trig of HC-SR04
-#define trigPin 3
+#define trigPin 12
 
 void ultrasonic_sensor_init();
 float ultrasonic_sensor_read();

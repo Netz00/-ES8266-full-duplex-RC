@@ -22,10 +22,6 @@ void ultrasonic_sensor_init()
 float ultrasonic_sensor_read()
 {
 
-#ifdef DEBUG
-    Serial.printf("### Ultrasonic sensor - reading distance \n");
-#endif
-
     // Clears the trigPin condition
     digitalWrite(trigPin, LOW); //
     delayMicroseconds(20000);
@@ -36,12 +32,13 @@ float ultrasonic_sensor_read()
     duration = pulseIn(echoPin, HIGH); // Calculating the distance
     distance = duration * 0.034 / 2;   // Speed of sound wave divided by 2 (go and back)
 
-    /*    if (distance <= 30)
-        {
-            Serial.print("Distance: ");
-            Serial.print(distance);
-            Serial.println(" cm");
-        }
-        */
+#ifdef DEBUG
+    Serial.printf("### Ultrasonic sensor - reading distance \n");
+    Serial.print("Distance: ");
+    Serial.print(distance);
+    Serial.println(" cm");
+
+#endif
+
     return distance;
 }

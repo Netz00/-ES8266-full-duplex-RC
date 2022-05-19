@@ -12,9 +12,9 @@
  *
  */
 
-#define VOLTAGE1 2
-#define VOLTAGE2 3
-#define CURRENT 4
+#define VOLTAGE1 13
+#define VOLTAGE2 15
+#define CURRENT 2
 
 // Voltage dividor R values defined
 
