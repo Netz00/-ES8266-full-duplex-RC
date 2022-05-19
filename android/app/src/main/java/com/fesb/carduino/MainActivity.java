@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     // Sound variables
     private SoundPool soundPool;
-    private int sound1, sound2;
+    private int sound1;
     private int sound3StreamId;
 
     boolean soundsLoaded = false;
@@ -162,7 +162,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
 
         sound1 = soundPool.load(this, R.raw.sound1, 1);
-        sound2 = soundPool.load(this, R.raw.sound2, 1);
 
         // Settings button listener init
 
