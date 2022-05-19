@@ -61,8 +61,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     AudioManager audioManager;
     int counter;
 
-    Integer measureDelay = 50;
-    float distance;
+    Integer measureDelay = 600;
+    float distance = 50;
     String previousMeasurement = "";
 
 
@@ -183,7 +183,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onClick(View v) {
                 if (startB.getText().equals("pause")) {
                     // delete all timerRunnable tasks that are waiting for execution
-                    udpServerThread.setRunning(false);
+                    if (udpServerThread != null) {
+                        udpServerThread.setRunning(false);
+                    }
                     timerHandler.removeCallbacks(timerRunnable);
                     timerHandler.removeCallbacks(timerRunnableMeasurement);
                     startB.setText("continue");
@@ -195,13 +197,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     timerHandler.post(timerRunnableMeasurement);
                     startB.setText("pause");
                     reset();
-                    udpServerThread.start();
+                    if (udpServerThread != null) {
+                        udpServerThread.start();
+                    }
                 } else { // continue
                     timerHandler.post(timerRunnable);
                     timerHandler.post(timerRunnableMeasurement);
                     startB.setText("pause");
                     reset();
-                    udpServerThread.setRunning(false);
+                    if (udpServerThread != null) {
+                        udpServerThread.setRunning(false);
+                    }
                 }
             }
         });
@@ -233,31 +239,32 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public void updateMeasurements() {
 
-        String measurement = udpServerThread.message;
+        if (udpServerThread != null) {
+            String measurement = udpServerThread.message;
 
-        if (measurement != null
-                && !previousMeasurement.equals(measurement)
-                && measurement.matches("[0-9]*\\.[0-9]+&([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[eE]([+-]?\\d+))?&[0-9]*\\.[0-9]+&([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[eE]([+-]?\\d+))?&([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[eE]([+-]?\\d+))?")
-        ) {
-            previousMeasurement = measurement;
+            if (measurement != null
+                    && !previousMeasurement.equals(measurement)
+                    && measurement.matches("[0-9]*\\.[0-9]+&([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[eE]([+-]?\\d+))?&[0-9]*\\.[0-9]+&([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[eE]([+-]?\\d+))?&([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[eE]([+-]?\\d+))?")
+            ) {
+                previousMeasurement = measurement;
 
-            String[] parsed = measurement.split("[&]");
-            voltage.setText("Cell 1: " + parsed[0] + " V  Cell 2 : " + parsed[1] + " V");
-            current.setText("Load: " + parsed[2] + "A");
-            rssi.setText("RSSI: " + parsed[4] + "dBm");
+                String[] parsed = measurement.split("[&]");
+                voltage.setText("Cell 1: " + parsed[0] + " V  Cell 2 : " + parsed[1] + " V");
+                current.setText("Load: " + parsed[2] + "A");
+                rssi.setText("RSSI: " + parsed[4] + "dBm");
 
-            distance = Float.parseFloat(parsed[3]);
+                distance = Float.parseFloat(parsed[3]);
+            }
+
+            // 110 entire beep
+            if (distance < 50) {
+                float delay = (float) (exp(distance / 8) + 150);
+                measureDelay = Math.round(delay);
+                playSound(sound1);
+            } else {
+                measureDelay = 600;
+            }
         }
-
-        // 110 entire beep
-        if (distance < 50) {
-            float delay = (float) (exp(distance / 8) + 150);
-            measureDelay = Math.round(delay);
-            playSound(sound1);
-        } else {
-            measureDelay = 600;
-        }
-
     }
 
     Runnable timerRunnableMeasurement = new Runnable() {
@@ -365,9 +372,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     // --------------- Handling application state changes ---------------
 
+
+    @Override
+    protected void onResume() {
+        if (udpServerThread != null) {
+            // Start listening for UDP port
+            udpServerThread = new UdpServerThread(4211);
+            udpServerThread.setRunning(false);
+        }
+        super.onResume();
+    }
+
     @Override
     public void onPause() {
-        udpServerThread.setRunning(false);
+        if (udpServerThread != null) {
+            udpServerThread.setRunning(false);
+        }
         timerHandler.removeCallbacks(timerRunnable);
         timerHandler.removeCallbacks(timerRunnableMeasurement);
         sensorManager.unregisterListener((SensorEventListener) this);
