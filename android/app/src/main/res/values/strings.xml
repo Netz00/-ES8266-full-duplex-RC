@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Carduino</string>
+    <string name="settings">SETTINGS</string>
+    <string name="defaultIP">192.168.0.17</string>
+    <string name="defaultPort">4210</string>
+    <string name="start">START</string>
+    <string name="IPadress">IP adress</string>
+    <string name="portNumber">PORT</string>
+    <string name="fps">DELAY BETWEEN PACKETS [ms]</string>
+    <string name="defaultVoltage">Cell 1: 0 V  Cell 2 : 0 V</string>
+    <string name="defaultCurrent">Load: 0 A</string>
+    <string name="defaultRssi">RSSI: 0 dBm</string>
+</resources>
