@@ -16,13 +16,4 @@
 #include "./monitoring/batteryMetric.h"
 #include "./monitoring/ultrasonicSensor.h"
 
-// Buffer implentation
-struct _buffer;
-typedef struct _buffer *buffer;
-typedef struct _buffer
-{
-  char *data;
-  size_t size;
-} Buffer;
-
 #endif
