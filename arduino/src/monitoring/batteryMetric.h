@@ -12,25 +12,8 @@
  *
  */
 
-#define VOLTAGE1 13
-#define VOLTAGE2 15
-#define CURRENT 2
-
-// Voltage dividor R values defined
-
-#define VOLTAGE_DIVIDER_R1 100000
-#define VOLTAGE_DIVIDER_R2 10000
-
-struct _reading;
-typedef struct _reading *reading;
-typedef struct _reading
-{
-    float voltage1;
-    float voltage2;
-    float current;
-} Reading;
-
 void metrics_init();
-reading metrics_read();
+float metrics_read();
+inline float readVoltage(int pin);
 
 #endif
