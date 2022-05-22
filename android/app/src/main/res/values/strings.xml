@@ -7,7 +7,7 @@
     <string name="IPadress">IP adress</string>
     <string name="portNumber">PORT</string>
     <string name="fps">DELAY BETWEEN PACKETS [ms]</string>
-    <string name="defaultVoltage">Cell 1: 0 V  Cell 2 : 0 V</string>
-    <string name="defaultCurrent">Load: 0 A</string>
+    <string name="defaultVoltage">Voltage: 0 V</string>
+    <string name="defaultDistance">Distance: INF cm</string>
     <string name="defaultRssi">RSSI: 0 dBm</string>
 </resources>

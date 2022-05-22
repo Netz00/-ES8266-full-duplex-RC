@@ -98,16 +98,16 @@
         android:textColor="#CEFFF8"
         android:textColorHighlight="#00C2C2"
         android:textSize="30sp"
-        app:layout_constraintBottom_toTopOf="@+id/current"
+        app:layout_constraintBottom_toTopOf="@+id/distance"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
-        android:id="@+id/current"
+        android:id="@+id/distance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="24dp"
-        android:text="@string/defaultCurrent"
+        android:text="@string/defaultDistance"
         android:textAlignment="center"
         android:textColor="#CEFFF8"
         android:textColorHighlight="#00C2C2"
@@ -119,7 +119,7 @@
         android:id="@+id/rssi"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="124dp"
+        android:layout_marginEnd="60dp"
         android:layout_marginBottom="24dp"
         android:text="@string/defaultRssi"
         android:textAlignment="center"
@@ -127,6 +127,6 @@
         android:textColorHighlight="#00C2C2"
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/current" />
+        app:layout_constraintEnd_toStartOf="@+id/distance" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

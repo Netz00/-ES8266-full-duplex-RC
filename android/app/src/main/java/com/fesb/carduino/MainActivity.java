@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     TextView IpTextView;
     TextView PortTextView;
     TextView voltage;
-    TextView current;
+    TextView distanceView;
     TextView rssi;
     Button settingsB;
     Button startB;
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     // Sound variables
-    private SoundPool soundPool;
+    private SoundPool soundPool = null;
     private int sound1;
     private int sound3StreamId;
 
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         IpTextView = (TextView) findViewById(R.id.ip);
         PortTextView = (TextView) findViewById(R.id.port);
         voltage = (TextView) findViewById(R.id.voltage);
-        current = (TextView) findViewById(R.id.current);
+        distanceView = (TextView) findViewById(R.id.distance);
         rssi = (TextView) findViewById(R.id.rssi);
         settingsB = (Button) findViewById(R.id.settings);
         startB = (Button) findViewById(R.id.start);
@@ -166,33 +166,9 @@ public class MainActivity extends AppCompatActivity {
         maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         volume = actVolume / maxVolume;
 
-        //Hardware buttons setting to adjust the media sound
-        this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        // Sound pool init
+        initSoundPlayer();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build();
-
-            soundPool = new SoundPool.Builder()
-                    .setMaxStreams(6)
-                    .setAudioAttributes(audioAttributes)
-                    .build();
-        } else {
-            soundPool = new SoundPool(6, AudioManager.STREAM_MUSIC, 0);
-        }
-
-        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
-            @Override
-            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-                soundsLoaded = true;
-            }
-        });
-
-        sound1 = soundPool.load(this, R.raw.sound1, 1);
 
         // Settings button listener init
 
@@ -277,19 +253,25 @@ public class MainActivity extends AppCompatActivity {
                 previousMeasurement = measurement;
 
                 String[] parsed = measurement.split("[&]");
-                voltage.setText("Cell 1: " + parsed[0] + " V  Cell 2 : " + parsed[1] + " V");
-                current.setText("Load: " + parsed[2] + "A");
-                rssi.setText("RSSI: " + parsed[4] + "dBm");
+
+                voltage.setText("Voltage: " + parsed[0] + " V");
+
+                rssi.setText("RSSI: " + parsed[4] + " dBm");
 
                 distance = Float.parseFloat(parsed[3]);
+
             }
 
             // 110 entire beep
             if (distance < 50) {
-                float delay = (float) (exp(distance / 8) + 150);
+                distanceView.setText("Distance: " + distance + " cm");
+
+                float delay = (float) (exp(distance / 8) + 130);
                 measureDelay = Math.round(delay);
                 playSound(sound1);
             } else {
+                distanceView.setText("Distance: INF cm");
+
                 measureDelay = 600;
             }
         }
@@ -304,10 +286,6 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-
-    public String[] parseString(String str) {
-        return str.split("[&]");
-    }
 
     /**
      * Sound player
@@ -330,13 +308,40 @@ public class MainActivity extends AppCompatActivity {
             soundPool.play(soundID, volume, volume, 1, 0, 1f);
             counter = counter++;
         }
-/* TODO
-        soundPool.play(sound1, 1, 1, 0, 0, 1);
-        //soundPool.pause(sound3StreamId);
-        soundPool.autoPause();
-        sound3StreamId = soundPool.play(sound1, 1, 1, 0, 0, 1);
-*/
 
+    }
+
+    public void initSoundPlayer() {
+
+        // Sound pool init
+        if (soundPool == null) {
+
+            //Hardware buttons setting to adjust the media sound
+            this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_GAME)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build();
+
+                soundPool = new SoundPool.Builder()
+                        .setMaxStreams(6)
+                        .setAudioAttributes(audioAttributes)
+                        .build();
+            } else {
+                soundPool = new SoundPool(6, AudioManager.STREAM_MUSIC, 0);
+            }
+
+            soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+                @Override
+                public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                    soundsLoaded = true;
+                }
+            });
+
+            sound1 = soundPool.load(this, R.raw.sound1, 1);
+        }
     }
 
 
@@ -417,6 +422,8 @@ public class MainActivity extends AppCompatActivity {
         mRotationVectorSensor = mSensorManager.getDefaultSensor(mSensorInUse);
         mRotationListener = new RotationListener();
         mSensorManager.registerListener(mRotationListener, mRotationVectorSensor, SensorManager.SENSOR_DELAY_GAME);
+
+        initSoundPlayer();
 
         super.onResume();
     }

@@ -34,7 +34,6 @@ public class UdpServerThread extends Thread {
             socket = new DatagramSocket(serverPort);
 
             Log.i("UdpServerThread", "UDP Server is running");
-            Log.e("UdpServerThread", "UDP Server is running");
 
             while (running) {
                 byte[] buf = new byte[31];
