@@ -8,7 +8,7 @@
 //    5   &   5    &   5    &       5        & 6  \0
 // => 31 character
 
-#define DEBUG // DEBUG = 0 -> DEBUG mode ON, otherwise OFF
+// #define DEBUG // DEBUG = 0 -> DEBUG mode ON, otherwise OFF
 
 #include <ESP8266WiFi.h>
 #include "./controls/controls.h"

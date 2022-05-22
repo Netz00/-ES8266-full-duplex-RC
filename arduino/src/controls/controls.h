@@ -10,11 +10,11 @@
 #ifndef Controls_h
 #define Controls_h
 
-#define DEBUG // DEBUG = 0 -> DEBUG mode ON, otherwise OFF
+// #define DEBUG // DEBUG = 0 -> DEBUG mode ON, otherwise OFF
 
 #include <ESP8266WiFi.h>
 
-#define new_frequency 10 // use PWM frequency optimised for your hardware
+#define new_frequency 20 // use PWM frequency optimised for your hardware
 
 // Pinout definition
 

@@ -2,7 +2,7 @@
 #ifndef Battery_metric_h
 #define Battery_metric_h
 
-#define DEBUG // DEBUG = 0 -> DEBUG mode ON, otherwise OFF
+// #define DEBUG // DEBUG = 0 -> DEBUG mode ON, otherwise OFF
 
 #include <ESP8266WiFi.h>
 
