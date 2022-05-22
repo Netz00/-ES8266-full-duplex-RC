@@ -26,7 +26,7 @@ import android.widget.TextView;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener {
+public class MainActivity extends AppCompatActivity {
     String ip;
     int port;
     int dbs; // delay between packets
@@ -40,12 +40,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Button startB;
     SeekBar accelerateS;
 
-    private SensorManager sensorManager = null;
 
     String msg = "";
     String tmp_msg = "";
     int forward = 0, backward = 0, acceleration = 1024, left = 0, right = 0;
+
+
+    private SensorManager mSensorManager;
+    private Sensor mRotationVectorSensor;
+    private int mSensorInUse;
+    private SensorEventListener mRotationListener;
     float accelerometer = 0, accelerometer_temp = 0;
+    float sensorInitValue;
+    boolean init = true;
+
 
     MessageSender messageSender;
     UdpServerThread udpServerThread;
@@ -86,15 +94,34 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 forward = backward = 0;
             }
 
-            if (accelerometer > 0) {
-                right = 0;
-                left = Integer.valueOf((int) (accelerometer * 110));
-            } else if (accelerometer < 0) {
-                left = 0;
-                right = Integer.valueOf((int) (-accelerometer * 110));
-            } else if (accelerometer == 0) {
+
+            float acc_val;
+            acc_val = accelerometer;
+            acc_val -= sensorInitValue; // Starting position correction
+            acc_val = ((int) (acc_val * 100)) / 100f;
+
+            // value 0.02 - 0.20
+
+            if (acc_val > 0.02 || acc_val < -0.02) { // is change significant?
+                if (acc_val > 0) {
+                    acc_val = (float) (exp(acc_val * 20) * 20);
+
+                    if (acc_val >= 1024) // did overflow happened?
+                        acc_val = 1024;
+
+                    left = 0;
+                    right = (int) (acc_val);
+                } else if (acc_val < 0) {
+                    acc_val = (float) (exp(-acc_val * 20) * 20);
+
+                    if (acc_val >= 1024) // did overflow happened?
+                        acc_val = 1024;
+
+                    right = 0;
+                    left = (int) (acc_val);
+                }
+            } else
                 left = right = 0;
-            }
 
             sendMsg();
 
@@ -232,8 +259,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        sensorManager.registerListener((SensorEventListener) this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
+
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        // sensorManager.registerListener((SensorEventListener) this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
 
     }
 
@@ -323,7 +351,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         backward = 0;
         left = 0;
         right = 0;
-        accelerometer = 0;
         accelerometer_temp = 0;
         acceleration = 1024;
         sendMsg();
@@ -380,6 +407,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             udpServerThread = new UdpServerThread(4211);
             udpServerThread.setRunning(false);
         }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR) != null) {
+            mSensorInUse = Sensor.TYPE_GAME_ROTATION_VECTOR;
+        } else {
+            mSensorInUse = Sensor.TYPE_ROTATION_VECTOR;
+        }
+
+        mRotationVectorSensor = mSensorManager.getDefaultSensor(mSensorInUse);
+        mRotationListener = new RotationListener();
+        mSensorManager.registerListener(mRotationListener, mRotationVectorSensor, SensorManager.SENSOR_DELAY_GAME);
+
         super.onResume();
     }
 
@@ -390,9 +428,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         timerHandler.removeCallbacks(timerRunnable);
         timerHandler.removeCallbacks(timerRunnableMeasurement);
-        sensorManager.unregisterListener((SensorEventListener) this);
         startB.setText("continue");
         reset();
+
+        mSensorManager.unregisterListener(mRotationListener);
         super.onPause();
     }
 
@@ -406,7 +445,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         timerHandler.removeCallbacks(timerRunnable);
         timerHandler.removeCallbacks(timerRunnableMeasurement);
-        sensorManager.unregisterListener((SensorEventListener) this);
+        mSensorManager.unregisterListener(mRotationListener);
         startB.setText("continue");
         reset();
         super.onStop();
@@ -422,11 +461,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         timerHandler.removeCallbacks(timerRunnable);
         timerHandler.removeCallbacks(timerRunnableMeasurement);
         startB.setText("continue");
-        sensorManager.registerListener(
-                (SensorEventListener) this,
-                sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-                SensorManager.SENSOR_DELAY_GAME
-        );
+
+        // TODO is it necessary?
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR) != null) {
+            mSensorInUse = Sensor.TYPE_GAME_ROTATION_VECTOR;
+        } else {
+            mSensorInUse = Sensor.TYPE_ROTATION_VECTOR;
+        }
+
+        mRotationVectorSensor = mSensorManager.getDefaultSensor(mSensorInUse);
+        mRotationListener = new RotationListener();
+        mSensorManager.registerListener(mRotationListener, mRotationVectorSensor, SensorManager.SENSOR_DELAY_GAME);
+
         reset();
         display();
         super.onRestart();
@@ -440,7 +487,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         timerHandler.removeCallbacks(timerRunnable);
         timerHandler.removeCallbacks(timerRunnableMeasurement);
-        sensorManager.unregisterListener((SensorEventListener) this);
+        mSensorManager.unregisterListener(mRotationListener);
         startB.setText("start");
         reset();
         soundPool.release();
@@ -453,22 +500,35 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     // --------------- Handling accelerometer sensor state changes ---------------
 
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 
-            accelerometer_temp = event.values[1];
+    private class RotationListener implements SensorEventListener {
 
-            if ((accelerometer_temp - accelerometer) > 0.5 || (accelerometer_temp - accelerometer) < (-0.5))
-                accelerometer = accelerometer_temp;
+        public void onSensorChanged(SensorEvent event) {
+            // we received a sensor event. it is a good practice to check
+            // that we received the proper event
 
+            if (event.sensor.getType() == mSensorInUse) {
+
+
+                accelerometer = event.values[2];
+
+                if (init) {
+
+                    sensorInitValue = accelerometer;
+                    init = false;
+
+                } else if ((accelerometer - accelerometer_temp) > 0.01 || (accelerometer - accelerometer_temp) < (-0.01)) {
+
+                    accelerometer_temp = accelerometer;
+
+                }
+            }
+        }
+
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
         }
     }
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
 
     // ------------------------------------------------------------------
 
