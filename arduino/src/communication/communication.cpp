@@ -1,11 +1,11 @@
 #include "communication.h"
 
 // Acess point credentials
-// const char *ssid = "1234";
-// const char *password = "qwertz1234";
+const char *ssid = "1234";
+const char *password = "qwertz1234";
 
-const char *ssid = "5BC0D9";
-const char *password = "vsmv37rx2c";
+// const char *ssid = "5BC0D9";
+// const char *password = "vsmv37rx2c";
 
 WiFiUDP Udp;
 

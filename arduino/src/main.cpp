@@ -15,8 +15,10 @@ int8_t rssi;
 void setup()
 {
 
+#ifdef DEBUG
   delay(1000);
   Serial.begin(115200);
+#endif
 
   // Initialize controls
   control_init();
@@ -61,7 +63,7 @@ void loop()
    * Android client --> UDP server
    **/
 
-  if ((counter++) % 16 == 0)
+  if ((counter++) % 12 == 0)
   {
 
     // Read ultrasonicSensor
