@@ -4,6 +4,8 @@ import static java.lang.Math.exp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
@@ -131,6 +133,21 @@ public class MainActivity extends AppCompatActivity {
 
     };
 
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
+        ab.setTitle("");
+        ab.setMessage("Are you sure to exit?");
+        ab.setPositiveButton("YES", (dialog, which) -> {
+            dialog.dismiss();
+            android.os.Process.killProcess(android.os.Process.myPid());
+            System.exit(1);
+        });
+        ab.setNegativeButton("NO", (dialog, which) -> dialog.dismiss());
+
+        ab.show();
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -172,45 +189,36 @@ public class MainActivity extends AppCompatActivity {
 
         // Settings button listener init
 
-        settingsB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                settings();
-            }
-        });
+        settingsB.setOnClickListener(v -> settings());
 
         startB.setText("start");//start-pause-continue
-        startB.setOnClickListener(new View.OnClickListener() {
+        startB.setOnClickListener(v -> {
+            if (startB.getText().equals("pause")) {
+                // delete all timerRunnable tasks that are waiting for execution
+                if (udpServerThread != null) {
+                    udpServerThread.setRunning(false);
+                }
+                timerHandler.removeCallbacks(timerRunnable);
+                timerHandler.removeCallbacks(timerRunnableMeasurement);
+                startB.setText("continue");
+                reset();
 
-            @Override
-            public void onClick(View v) {
-                if (startB.getText().equals("pause")) {
-                    // delete all timerRunnable tasks that are waiting for execution
-                    if (udpServerThread != null) {
-                        udpServerThread.setRunning(false);
-                    }
-                    timerHandler.removeCallbacks(timerRunnable);
-                    timerHandler.removeCallbacks(timerRunnableMeasurement);
-                    startB.setText("continue");
-                    reset();
-
-                } else if (startB.getText().equals("start")) {
-                    // initiate first execution
-                    timerHandler.post(timerRunnable);
-                    timerHandler.post(timerRunnableMeasurement);
-                    startB.setText("pause");
-                    reset();
-                    if (udpServerThread != null) {
-                        udpServerThread.start();
-                    }
-                } else { // continue
-                    timerHandler.post(timerRunnable);
-                    timerHandler.post(timerRunnableMeasurement);
-                    startB.setText("pause");
-                    reset();
-                    if (udpServerThread != null) {
-                        udpServerThread.setRunning(false);
-                    }
+            } else if (startB.getText().equals("start")) {
+                // initiate first execution
+                timerHandler.post(timerRunnable);
+                timerHandler.post(timerRunnableMeasurement);
+                startB.setText("pause");
+                reset();
+                if (udpServerThread != null) {
+                    udpServerThread.start();
+                }
+            } else { // continue
+                timerHandler.post(timerRunnable);
+                timerHandler.post(timerRunnableMeasurement);
+                startB.setText("pause");
+                reset();
+                if (udpServerThread != null) {
+                    udpServerThread.setRunning(false);
                 }
             }
         });
@@ -238,7 +246,6 @@ public class MainActivity extends AppCompatActivity {
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         // sensorManager.registerListener((SensorEventListener) this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
-
     }
 
     public void updateMeasurements() {
