@@ -5,7 +5,6 @@ import static java.lang.Math.exp;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
@@ -20,13 +19,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity {
     String ip;
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     TextView rssi;
     Button settingsB;
     Button startB;
+    Button statisticB;
     SeekBar accelerateS;
 
 
@@ -55,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     float accelerometer = 0, accelerometer_temp = 0;
     float sensorInitValue;
     boolean init = true;
+    ArrayList<Float> distanceList = new ArrayList<>();
 
 
     MessageSender messageSender;
@@ -168,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
         rssi = (TextView) findViewById(R.id.rssi);
         settingsB = (Button) findViewById(R.id.settings);
         startB = (Button) findViewById(R.id.start);
+        statisticB = (Button) findViewById(R.id.statistic);
         accelerateS = (SeekBar) findViewById(R.id.seekBar);
 
         display();
@@ -190,6 +194,8 @@ public class MainActivity extends AppCompatActivity {
         // Settings button listener init
 
         settingsB.setOnClickListener(v -> settings());
+
+        statisticB.setOnClickListener(v -> statistic());
 
         startB.setText("start");//start-pause-continue
         startB.setOnClickListener(v -> {
@@ -272,13 +278,14 @@ public class MainActivity extends AppCompatActivity {
             // 110 entire beep
             if (distance < 50) {
                 distanceView.setText("Distance: " + distance + " cm");
+                distanceList.add(distance);
 
                 float delay = (float) (exp(distance / 8) + 130);
                 measureDelay = Math.round(delay);
                 playSound(sound1);
             } else {
                 distanceView.setText("Distance: INF cm");
-
+                distanceList.add(0.0f);
                 measureDelay = 600;
             }
         }
@@ -394,6 +401,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Open statistic distance
+     */
+
+    public void statistic() {
+        reset();
+        Intent intent = new Intent(this, SecondActivity.class);
+
+        if(distanceList != null && !distanceList.isEmpty()){
+            float[] list =  new float[distanceList.size()];
+            for(int i = 0; i < distanceList.size(); i++) {
+                list[i] = distanceList.get(i);
+            }
+            intent.putExtra("extra", list);
+
+        } else {
+            float[] list = {0.0f, 0.0f};
+            intent.putExtra("extra", list);
+        }
+        distanceList.clear();
+        startActivity(intent);
+    }
+
+    /**
      * Display IP and port
      * Set message sender IP and port
      */
@@ -407,6 +437,7 @@ public class MainActivity extends AppCompatActivity {
         }
         MessageSender.port = port;
     }
+
 
 
     // --------------- Handling application state changes ---------------
