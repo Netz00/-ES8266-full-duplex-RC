@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/new_game"
+        android:iconTint="#673AB7"
+        android:title=""
+        app:showAsAction="ifRoom"
+        />
+    <item
+        android:id="@+id/settings"
+        android:iconTint="#673AB7"
+        android:title="@string/settings" />
+
+    <item android:id="@+id/statistic"
+        android:title="@string/statistic"
+        />
+</menu>

@@ -19,6 +19,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -39,9 +42,7 @@ public class MainActivity extends AppCompatActivity {
     TextView voltage;
     TextView distanceView;
     TextView rssi;
-    Button settingsB;
     Button startB;
-    Button statisticB;
     SeekBar accelerateS;
 
 
@@ -136,6 +137,27 @@ public class MainActivity extends AppCompatActivity {
 
     };
 
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.settings:
+                settings();
+                return true;
+            case R.id.statistic:
+                statistic();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     @Override
     public void onBackPressed() {
         AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
@@ -169,9 +191,7 @@ public class MainActivity extends AppCompatActivity {
         voltage = (TextView) findViewById(R.id.voltage);
         distanceView = (TextView) findViewById(R.id.distance);
         rssi = (TextView) findViewById(R.id.rssi);
-        settingsB = (Button) findViewById(R.id.settings);
         startB = (Button) findViewById(R.id.start);
-        statisticB = (Button) findViewById(R.id.statistic);
         accelerateS = (SeekBar) findViewById(R.id.seekBar);
 
         display();
@@ -189,13 +209,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         initSoundPlayer();
-
-
-        // Settings button listener init
-
-        settingsB.setOnClickListener(v -> settings());
-
-        statisticB.setOnClickListener(v -> statistic());
 
         startB.setText("start");//start-pause-continue
         startB.setOnClickListener(v -> {
