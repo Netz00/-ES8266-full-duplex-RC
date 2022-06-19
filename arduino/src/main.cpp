@@ -83,14 +83,11 @@ void loop()
     int written_bytes = snprintf(
         out_buffer,
         OUT_BUFFER_SIZE,
-        "%.2f&%.2f&%.2f&%d&%d\0",
+        "%.2f&0.00&0.00&%d&%d\0",
         voltage,
-        0.00,
-        0.00,
         ultrasonicSensor,
         rssi);
 
-    if (written_bytes > 0)
       communication_send_data(out_buffer); // send data to remote UDP server
   }
   /**
@@ -108,5 +105,5 @@ void loop()
   Serial.printf("END OF LOOP\n\n");
 #endif
 
-  delay(10);
+
 }

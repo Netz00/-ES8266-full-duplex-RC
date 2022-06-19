@@ -71,7 +71,10 @@ boolean communication_read_data(char *in_buffer, int bufer_size)
         len = Udp.read(in_buffer, bufer_size);
 
         if (len > 0)
+        {
             in_buffer[len] = 0;
+            return true;
+        }
 
 #ifdef DEBUG
 
@@ -81,8 +84,6 @@ boolean communication_read_data(char *in_buffer, int bufer_size)
 
         Serial.printf("Packet size: %d\nPacket: %s\n", len, in_buffer);
 #endif
-
-        return true;
     }
 
     return false;

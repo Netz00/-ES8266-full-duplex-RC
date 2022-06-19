@@ -23,11 +23,10 @@ int ultrasonic_sensor_read()
     // Clears the trigPin condition
 
     digitalWrite(trigPin, LOW);
-    delayMicroseconds(2);
 
     // Sets the trigPin HIGH (ACTIVE) for 10 microseconds
     digitalWrite(trigPin, HIGH);
-    delayMicroseconds(5);
+    delayMicroseconds(2);
     digitalWrite(trigPin, LOW);
 
     // Reads the echoPin, returns the sound wave travel time in microseconds
