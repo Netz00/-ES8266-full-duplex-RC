@@ -1,6 +1,6 @@
 #include "controls.h"
 
-pos position = NULL;
+CarPosition position;
 
 void control_init()
 {
@@ -23,13 +23,7 @@ void control_init()
     analogWrite(PWM_L, 0);
     analogWrite(PWM_R, 0);
 
-    position = (pos)malloc(sizeof(CarPosition));
 
-#ifdef DEBUG
-    Serial.printf("### Controls - init \n");
-    if (position == NULL)
-        Serial.printf("Failed to allocate memory.\n");
-#endif
 }
 
 void control_update(char *in_buffer)
@@ -37,25 +31,25 @@ void control_update(char *in_buffer)
 
     // Intepreting buffer position into local variables
 
-    sscanf(in_buffer, "%u&%u:%u&%ue", &(position->forward), &(position->backward), &(position->left), &(position->right));
+    sscanf(in_buffer, "%u&%u:%u&%ue", &(position.forward), &(position.backward), &(position.left), &(position.right));
 
 #ifdef DEBUG
-    Serial.printf("### Controls - update pins \nforward: %u backward: %u left: %u right: %u \n", position->forward, position->backward, position->left, position->right);
+    Serial.printf("### Controls - update pins \nforward: %u backward: %u left: %u right: %u \n", position.forward, position.backward, position.left, position.right);
 #endif
 
     // Updating GPIO pins state by local variables values
 
-    if (position->forward != position->backward) // if not 0 both
+    if (position.forward != position.backward) // if not 0 both
     {
-        if (position->backward == 0)
+        if (position.backward == 0)
         {
             analogWrite(PWM_B, 0);
-            analogWrite(PWM_F, position->forward);
+            analogWrite(PWM_F, position.forward);
         }
-        if (position->forward == 0)
+        if (position.forward == 0)
         {
             analogWrite(PWM_F, 0);
-            analogWrite(PWM_B, position->backward);
+            analogWrite(PWM_B, position.backward);
         }
     }
     else
@@ -64,17 +58,17 @@ void control_update(char *in_buffer)
         analogWrite(PWM_B, 0);
     }
 
-    if (position->left != position->right) // if not 0 both
+    if (position.left != position.right) // if not 0 both
     {
-        if (position->right == 0)
+        if (position.right == 0)
         {
             analogWrite(PWM_R, 0);
-            analogWrite(PWM_L, position->left);
+            analogWrite(PWM_L, position.left);
         }
-        if (position->left == 0)
+        if (position.left == 0)
         {
             analogWrite(PWM_L, 0);
-            analogWrite(PWM_R, position->right);
+            analogWrite(PWM_R, position.right);
         }
     }
     else
